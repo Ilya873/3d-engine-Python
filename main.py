@@ -110,32 +110,38 @@ def check_collisions(camera_pos, model_positions):
         position = model_position_data['position']
         model_name = model_position_data['model_name']
 
-        # Найдите модель по имени
-        for model_data in models_properties.models_data:
-            if model_data['name'] == model_name:
-                model_vertices = model_data['vertices']
+        # Проверяем видимость модели, исходя из расстояния
+        distance = math.sqrt(
+            (camera_x - position[0]) ** 2 + (camera_y - position[1]) ** 2 + (camera_z - position[2]) ** 2)
+        view_distance = game_options["view_distance"]
 
-                # Определите ограничивающий объем модели
-                min_x, min_y, min_z = model_vertices[0]
-                max_x, max_y, max_z = model_vertices[0]
+        if distance <= view_distance:
+            # Найдите модель по имени
+            for model_data in models_properties.models_data:
+                if model_data['name'] == model_name:
+                    model_vertices = model_data['vertices']
 
-                for vertex in model_vertices:
-                    vertex_x, vertex_y, vertex_z = vertex
-                    min_x = min(min_x, vertex_x)
-                    min_y = min(min_y, vertex_y)
-                    min_z = min(min_z, vertex_z)
-                    max_x = max(max_x, vertex_x)
-                    max_y = max(max_y, vertex_y)
-                    max_z = max(max_z, vertex_z)
+                    # Определите ограничивающий объем модели
+                    min_x, min_y, min_z = model_vertices[0]
+                    max_x, max_y, max_z = model_vertices[0]
 
-                # Проверяем столкновение камеры с ограничивающим объемом модели
-                if (camera_x + camera_radius >= min_x + position[0] and
-                    camera_x - camera_radius <= max_x + position[0] and
-                    camera_y + camera_radius >= min_y + position[1] and
-                    camera_y - camera_radius <= max_y + position[1] and
-                    camera_z + camera_radius >= min_z + position[2] and
-                    camera_z - camera_radius <= max_z + position[2]):
-                    return True  # Столкновение обнаружено
+                    for vertex in model_vertices:
+                        vertex_x, vertex_y, vertex_z = vertex
+                        min_x = min(min_x, vertex_x)
+                        min_y = min(min_y, vertex_y)
+                        min_z = min(min_z, vertex_z)
+                        max_x = max(max_x, vertex_x)
+                        max_y = max(max_y, vertex_y)
+                        max_z = max(max_z, vertex_z)
+
+                    # Проверяем столкновение камеры с ограничивающим объемом модели
+                    if (camera_x + camera_radius >= min_x + position[0] and
+                        camera_x - camera_radius <= max_x + position[0] and
+                        camera_y + camera_radius >= min_y + position[1] and
+                        camera_y - camera_radius <= max_y + position[1] and
+                        camera_z + camera_radius >= min_z + position[2] and
+                        camera_z - camera_radius <= max_z + position[2]):
+                        return True  # Столкновение обнаружено
 
     return False  # Столкновений не обнаружено
 
@@ -184,16 +190,20 @@ def draw_models(models_positions, camera_pos):
     glEnable(GL_TEXTURE_2D)
     for model_position_data in models_positions:
         position = model_position_data['position']
+        rotation = model_position_data.get('rotation', [0, 0,
+                                                        0])  # Получаем углы вращения или устанавливаем их в [0, 0, 0] по умолчанию
+        rotation_x, rotation_y, rotation_z = rotation
         model_name = model_position_data['model_name']
-        distance = sqrt((camera_pos[0] - position[0]) ** 2 + (camera_pos[1] - position[1]) ** 2 + (camera_pos[2] - position[2]) ** 2)
+        distance = sqrt((camera_pos[0] - position[0]) ** 2 + (camera_pos[1] - position[1]) ** 2 + (
+                    camera_pos[2] - position[2]) ** 2)
 
         if distance <= view_distance:
             if distance <= fog_start_distance:
                 glFogf(GL_FOG_START, fog_start_distance)
-                glFogf(GL_FOG_END, fog_start_distance+fog_depth)
+                glFogf(GL_FOG_END, fog_start_distance + fog_depth)
             else:
                 glFogf(GL_FOG_START, fog_start_distance)
-                glFogf(GL_FOG_END, fog_start_distance+fog_depth)
+                glFogf(GL_FOG_END, fog_start_distance + fog_depth)
 
             model_data = get_model_by_name(model_name)
             if model_data:
@@ -202,6 +212,12 @@ def draw_models(models_positions, camera_pos):
 
                 glPushMatrix()
                 glTranslatef(-position[0], -position[1], -position[2])
+
+                # Применяем вращение
+                glRotatef(rotation_x, 1, 0, 0)  # Вращение вокруг оси X
+                glRotatef(rotation_y, 0, 1, 0)  # Вращение вокруг оси Y
+                glRotatef(rotation_z, 0, 0, 1)  # Вращение вокруг оси Z
+
                 glCallList(model_data['display_list'])
                 glPopMatrix()
 

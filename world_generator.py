@@ -4,10 +4,6 @@ import json
 def generate_models(grid_size_x=10, grid_size_y=1, grid_size_z=5):
     model_positions = []
 
-    # Задать позиции моделей вручную и добавить в список
-    # model1_position = {'position': (0, 5, 0), 'model_name': 'model1'}
-    # model_positions.append(model1_position)
-
     # Чтение данных из positions.json и преобразование их в model_positions
     def load_positions_data(json_file):
         try:
@@ -20,10 +16,13 @@ def generate_models(grid_size_x=10, grid_size_y=1, grid_size_z=5):
                 x = pos_data['x']
                 y = pos_data['y']
                 z = pos_data['z']
+                rotation_x = pos_data['rotation_x']
+                rotation_y = pos_data['rotation_y']
+                rotation_z = pos_data['rotation_z']
                 model_name = pos_data['object_name']
 
                 # Преобразуйте данные в нужный формат и добавьте в model_positions
-                position = {'position': [x, y, z], 'model_name': model_name}
+                position = {'position': [x, y, z], 'rotation': [rotation_x, rotation_y, rotation_z], 'model_name': model_name}
                 model_positions.append(position)
 
             return model_positions

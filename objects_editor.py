@@ -190,15 +190,33 @@ class ModelPositionEditor(QWidget):
         self.z_input = QLineEdit(self)
         self.z_input.setGeometry(190, 260, 50, 30)
 
+        self.rotation_x_label = QLabel("Угол по X:", self)
+        self.rotation_x_label.setGeometry(10, 300, 150, 30)
+
+        self.rotation_x_input = QLineEdit(self)
+        self.rotation_x_input.setGeometry(170, 300, 50, 30)
+
+        self.rotation_y_label = QLabel("Угол по Y:", self)
+        self.rotation_y_label.setGeometry(10, 340, 150, 30)
+
+        self.rotation_y_input = QLineEdit(self)
+        self.rotation_y_input.setGeometry(170, 340, 50, 30)
+
+        self.rotation_z_label = QLabel("Угол по Z:", self)
+        self.rotation_z_label.setGeometry(10, 380, 150, 30)
+
+        self.rotation_z_input = QLineEdit(self)
+        self.rotation_z_input.setGeometry(170, 380, 50, 30)
+
         self.object_name_label = QLabel("Имя объекта:", self)
-        self.object_name_label.setGeometry(10, 300, 150, 30)
+        self.object_name_label.setGeometry(10, 420, 150, 30)
 
         self.object_name_input = QLineEdit(self)
-        self.object_name_input.setGeometry(170, 300, 220, 30)
+        self.object_name_input.setGeometry(170, 420, 220, 30)
 
         # Создаем кнопку "Сохранить" и подключаем к ней метод сохранения
         self.save_button = QPushButton("Сохранить", self)
-        self.save_button.setGeometry(10, 380, 150, 30)
+        self.save_button.setGeometry(10, 460, 150, 30)
         self.save_button.clicked.connect(self.save_edited_item)
 
         # Загрузка данных из positions.json
@@ -233,10 +251,13 @@ class ModelPositionEditor(QWidget):
         x = self.x_input.text()
         y = self.y_input.text()
         z = self.z_input.text()
+        rotation_x = self.rotation_x_input.text()
+        rotation_y = self.rotation_y_input.text()
+        rotation_z = self.rotation_z_input.text()
         object_name = self.object_name_input.text()
 
-        if x and y and z and object_name:
-            item_text = f"X: {x}, Y: {y}, Z: {z}, Имя объекта: {object_name}"
+        if x and y and z and rotation_x and rotation_y and rotation_z and object_name:
+            item_text = f"X: {x}, Y: {y}, Z: {z}, Угол по X: {rotation_x}, Угол по Y: {rotation_y}, Угол по Z: {rotation_z}, Имя объекта: {object_name}"
             self.position_list.addItem(item_text)
 
             # Сохранение данных в positions.json
@@ -258,12 +279,18 @@ class ModelPositionEditor(QWidget):
             x = parts[0].split(": ")[1]
             y = parts[1].split(": ")[1]
             z = parts[2].split(": ")[1]
-            object_name = parts[3].split(": ")[1]
+            rotation_x = parts[3].split(": ")[1]
+            rotation_y = parts[4].split(": ")[1]
+            rotation_z = parts[5].split(": ")[1]
+            object_name = parts[6].split(": ")[1]
 
             # Заполняем поля данными выбранной строки
             self.x_input.setText(x)
             self.y_input.setText(y)
             self.z_input.setText(z)
+            self.rotation_x_input.setText(rotation_x)
+            self.rotation_y_input.setText(rotation_y)
+            self.rotation_z_input.setText(rotation_z)
             self.object_name_input.setText(object_name)
 
             # Загрузка скрипта для выбранного объекта
@@ -284,16 +311,22 @@ class ModelPositionEditor(QWidget):
             x = self.x_input.text()
             y = self.y_input.text()
             z = self.z_input.text()
+            rotation_x = self.rotation_x_input.text()
+            rotation_y = self.rotation_y_input.text()
+            rotation_z = self.rotation_z_input.text()
             object_name = self.object_name_input.text()
 
             # Обновляем текст выбранного элемента
-            new_item_text = f"X: {x}, Y: {y}, Z: {z}, Имя объекта: {object_name}"
+            new_item_text = f"X: {x}, Y: {y}, Z: {z}, Угол по X: {rotation_x}, Угол по Y: {rotation_y}, Угол по Z: {rotation_z}, Имя объекта: {object_name}"
             self.current_item.setText(new_item_text)
 
             # Очищаем поля
             self.x_input.clear()
             self.y_input.clear()
             self.z_input.clear()
+            self.rotation_x_input.clear()
+            self.rotation_y_input.clear()
+            self.rotation_z_input.clear()
             self.object_name_input.clear()
 
             # Сохраняем измененные данные в файл
@@ -307,8 +340,19 @@ class ModelPositionEditor(QWidget):
             x = float(parts[0].split(": ")[1])
             y = float(parts[1].split(": ")[1])
             z = float(parts[2].split(": ")[1])
-            object_name = parts[3].split(": ")[1]
-            positions_data.append({'x': x, 'y': y, 'z': z, 'object_name': object_name})
+            rotation_x = float(parts[3].split(": ")[1])
+            rotation_y = float(parts[4].split(": ")[1])
+            rotation_z = float(parts[5].split(": ")[1])
+            object_name = parts[6].split(": ")[1]
+            positions_data.append({
+                'x': x,
+                'y': y,
+                'z': z,
+                'rotation_x': rotation_x,
+                'rotation_y': rotation_y,
+                'rotation_z': rotation_z,
+                'object_name': object_name
+            })
 
         with open('positions.json', 'w') as json_file:
             json.dump(positions_data, json_file)
@@ -323,9 +367,12 @@ class ModelPositionEditor(QWidget):
                 x = pos_data['x']
                 y = pos_data['y']
                 z = pos_data['z']
+                rotation_x = pos_data['rotation_x']
+                rotation_y = pos_data['rotation_y']
+                rotation_z = pos_data['rotation_z']
                 object_name = pos_data['object_name']
 
-                item_text = f"X: {x}, Y: {y}, Z: {z}, Имя объекта: {object_name}"
+                item_text = f"X: {x}, Y: {y}, Z: {z}, Угол по X: {rotation_x}, Угол по Y: {rotation_y}, Угол по Z: {rotation_z}, Имя объекта: {object_name}"
                 self.position_list.addItem(item_text)
         except FileNotFoundError:
             pass
