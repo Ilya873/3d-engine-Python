@@ -238,7 +238,7 @@ class ModelPositionEditor(QWidget):
         # Get the selected object from the list
         if hasattr(self, 'current_item') and self.current_item is not None:
             item_text = self.current_item.text()
-            object_name = item_text.split(", ")[3].split(": ")[1]
+            object_name = item_text.split(", ")[6].split(": ")[1]
 
             # Save the script for the selected object
             self.object_scripts[object_name] = self.script_input.toPlainText()
